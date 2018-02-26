@@ -9,8 +9,8 @@ enum Mode {
     NotInPossession
 }
 
-const cryptoCurrency = 'ETH';
-const quoteCurrency = 'EUR';
+const cryptoCurrency = 'BTC';
+const quoteCurrency = 'USD';
 const product = `${cryptoCurrency}-${quoteCurrency}`;
 const logger = GTT.utils.ConsoleLoggerFactory({ level: 'debug' });
 const printTicker = GTT.utils.printTicker;
@@ -19,14 +19,14 @@ const printTicker = GTT.utils.printTicker;
  * Size of values in a window used to determine the moving average.
  * @type {number}
  */
-const windowSize = 12;
+const windowSize = 30;
 const granularity = 60;
 
 /**
  * Number of averages used to determine if the slope steepness exceeds a threshold.
  * @type {number}
  */
-const lookback = 6;
+const lookback = 4;
 
 /**
  * A relative (percent) threshold regarding the total market price that has to be exceed to either trigger a BUY or
@@ -86,8 +86,7 @@ function connect(data: number[], averages: number[]) {
                 averages.shift();
                 averages.push(averages[averages.length - 1] + currentAverageValue - dropOutAverageValue);
 
-                if (determineAction(averages, lookback, threshold)) {
-                    logger.log('info', `Price: ${book.ticker.price}`);
+                if (determineAction(averages, lookback, threshold, book.ticker.price.toNumber())) {
                     printProfit(book.ticker.price.toNumber());
                 }
             }, granularity * 1000);
@@ -115,19 +114,21 @@ function connect(data: number[], averages: number[]) {
     });
 }
 
-function determineAction(averages: number[], lookback: number, threshold: number): boolean {
-    const window = averages.slice(0, lookback);
+function determineAction(averages: number[], lookback: number, threshold: number, price: number): boolean {
+    const window = averages.slice(averages.length - lookback - 1, averages.length);
 
     if (window.length <= 0) {
         return false;
     }
 
-    const delta = window[window.length - 1] - window[0];
-    const normalizedDelta = delta / window[window.length - 1];
+    const closingPrice = window[window.length - 1];
+    const delta = closingPrice - window[0];
+    const normalizedDelta = delta / closingPrice;
+    logger.log('info', `Delta: ${normalizedDelta.toFixed(5)}, Actual Price: ${price}, Opening SMA price: ${window[0].toFixed(3)}, Closing SMA price: ${closingPrice.toFixed(3)}`);
 
     if (mode === Mode.NotInPossession && normalizedDelta > threshold) {
         // buy
-        const buyPrice = window[window.length - 1] * (1 / .98);
+        const buyPrice = price * 1.02;
         eth = euros / buyPrice;
         logger.log('info', `buying  ${eth.toFixed(5)} ${cryptoCurrency} for ${buyPrice}`);
         euros = 0;
@@ -136,7 +137,7 @@ function determineAction(averages: number[], lookback: number, threshold: number
         return true;
     } else if (mode === Mode.InPossession && normalizedDelta < -threshold) {
         // sell
-        const sellPrice = window[window.length - 1] * 1.02;
+        const sellPrice = price * 0.98;
         euros = eth * sellPrice;
         logger.log('info', `${quoteCurrency} ${euros.toFixed(2)}, selling ${eth.toFixed(5)} ${cryptoCurrency} for ${sellPrice}`);
         eth = 0;

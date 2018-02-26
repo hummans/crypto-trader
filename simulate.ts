@@ -2,10 +2,13 @@ import * as fs from 'fs';
 
 type TicketValue = { time: number, price: number };
 
+enum Mode {
+    InPossession,
+    NotInPossession
+}
 
-
-const data = 'eth-eur-data.csv';
-// const data = 'btc-usd-data.csv';
+//const data = 'eth-eur-data.csv';
+ const data = 'btc-usd-data.csv';
 const prices: TicketValue[] = fs.readFileSync(data)
     .toString('utf8')
     .split('\n')
@@ -13,11 +16,11 @@ const prices: TicketValue[] = fs.readFileSync(data)
     .map(row => row.split(','))
     .map(row => ({ time: +row[0], price: +row[1] }));
 
-// for (let i = 5; i < 60; i++) {
-//     runWindowSizes(i);
-// }
+for (let i = 5; i <= 30; i+=5) {
+    runWindowSizes(i);
+}
 
-runWindowSizes(12);
+// runWindowSizes(30);
 
 function runWindowSizes(windowSize: number) {
     const averages: number[] = [];
@@ -36,10 +39,10 @@ function runWindowSizes(windowSize: number) {
     console.log();
     console.log(`Window size: ${windowSize}`);
 
-    // for (let lookback = 5; lookback <= 15; lookback += 1) {
-    //     run(averages, lookback, .002)
-    // }
-    run(averages, 6, .002)
+     for (let lookback = 2; lookback <= 15; lookback += 1) {
+         run(averages, lookback, .002)
+     }
+    //run(averages, 4, .002);
 }
 
 function run(averages: number[], lookback: number, threshold: number) {
@@ -60,7 +63,7 @@ function run(averages: number[], lookback: number, threshold: number) {
 
         if (mode === Mode.NotInPossession && normalizedDelta > threshold) {
             // buy
-            const buyPrice = window[window.length - 1] * (1 / .98);
+            const buyPrice = window[window.length - 1] * 1.02;
             eth = euros / buyPrice;
             // console.log(`         buying  ${eth.toFixed(5)} ETH for ${prices[i + lookback].price}`);
             // console.log(`${i}\t${buyPrice}`);
@@ -68,7 +71,7 @@ function run(averages: number[], lookback: number, threshold: number) {
             mode = Mode.InPossession;
         } else if (mode === Mode.InPossession && normalizedDelta < -threshold) {
             // sell
-            const sellPrice = window[window.length - 1] * 1.02;
+            const sellPrice = window[window.length - 1] * 0.98;
             euros = eth * sellPrice;
             // console.log(`€${euros.toFixed(2)}, selling ${eth.toFixed(5)} ETH for ${prices[i + lookback].price}`);
             // console.log(`${euros.toFixed(2)}\t${sellPrice}`);
