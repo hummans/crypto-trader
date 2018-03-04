@@ -29,7 +29,7 @@ const limit = new Date(2017, 11, 18);
 const cryptoCurrency = 'ETH';
 const realCurrency = 'EUR';
 
-const filename = `${__dirname}/../assets/${cryptoCurrency}-${realCurrency}-${granularity}-${format(limit, 'YYYY-MM-DD')}-${format(startDate, 'YYYY-MM-DD')}.csv`;
+const filename = `${__dirname}/assets/${cryptoCurrency}-${realCurrency}-${granularity}-${format(limit, 'YYYY-MM-DD')}-${format(startDate, 'YYYY-MM-DD')}.csv`;
 
 fetchData(startDate);
 
