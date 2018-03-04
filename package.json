@@ -1,21 +1,33 @@
 {
-  "name": "gdax-playground",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "scripts": {
-    "start": "ts-node index.ts",
-    "simulate": "ts-node simulate.ts",
-    "fetch": "ts-node fetch-data.ts"
-  },
-  "dependencies": {
-    "date-fns": "^1.29.0",
-    "gdax-trading-toolkit": "^0.3.1",
-    "node-fetch": "^2.0.0",
-    "ts-node": "^5.0.0",
-    "typescript": "^2.7.2"
-  },
-  "devDependencies": {
-    "@types/node-fetch": "^1.6.7"
-  }
+    "name": "gdax-playground",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "start": "webpack-dev-server --port=4200",
+        "build": "webpack"
+    },
+    "dependencies": {
+        "chart.js": "^2.7.2",
+        "core-js": "^2.5.3",
+        "date-fns": "^1.29.0",
+        "gdax-trading-toolkit": "^0.3.1",
+        "moment": "^2.21.0",
+        "regenerator-runtime": "^0.11.1"
+    },
+    "devDependencies": {
+        "@types/chart.js": "^2.7.9",
+        "@types/node-fetch": "^1.6.7",
+        "circular-dependency-plugin": "^4.4.0",
+        "copy-webpack-plugin": "^4.5.0",
+        "html-webpack-plugin": "github:webpack-contrib/html-webpack-plugin",
+        "node-fetch": "^2.0.0",
+        "raw-loader": "^0.5.1",
+        "ts-loader": "^4.0.1",
+        "ts-node": "^5.0.0",
+        "typescript": "^2.7.2",
+        "webpack": "^4.1.0",
+        "webpack-cli": "^2.0.10",
+        "webpack-dev-server": "^3.1.0"
+    }
 }
